@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <form id="registerForm">
+        <h2>Registro</h2>
+        <div class="section">
+            <div class="title">Username</div>
+            <div class="field"><input type="text" id="username" name="username" required></div>
+        </div>
+        <div class="section">
+            <div class="title">Email</div>
+            <div class="field"><input type="email" id="email" name="email" required></div>
+        </div>
+        <div class="section">
+            <div class="title">Password</div>
+            <div class="field"><input type="password" id="password" name="password" required></div>
+        </div>
+<!-- signup.html -->
+        <div class="section">
+            <div class="title">Rol</div>
+            <div class="field">
+                <select id="role" name="role">
+                    <option value="USER">Usuario General</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="button"><input type="submit" value="Registrar usuario"></div>
+            <div class="field"><a href="index.html">¿Ya tienes cuenta? Inicia sesión</a></div>
+        </div>
+    </form>
+
+    <div id="notification" class="notification" style="display: none;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const registerForm = document.getElementById('registerForm');
+            const notificationDiv = document.getElementById('notification');
+
+            registerForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const role = document.getElementById('role').value; // Obtiene el valor del rol seleccionado
+
+                try {
+                    const response = await fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, email, password, role }), // Incluye el rol en el envío
+                    });
+
+                    const data = await response.json();
+
+                    notificationDiv.textContent = data.message;
+                    notificationDiv.style.display = 'block';
+
+                    if (data.redirect) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 3000);
+                    }
+                } catch (error) {
+                    notificationDiv.textContent = error.message;
+                    notificationDiv.style.display = 'block';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

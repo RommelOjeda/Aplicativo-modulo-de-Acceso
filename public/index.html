@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <form id="loginForm">
+        <h2>Login</h2>
+        <div class="section">
+            <div class="title">Username</div>
+            <div class="field"><input type="text" id="username" name="username" required></div>
+        </div>
+        <div class="section">
+            <div class="title">Password</div>
+            <div class="field"><input type="password" id="password" name="password" required></div>
+        </div>
+        <div class="section">
+            <div class="button"><input type="submit" value="Login"></div>
+            <div class="field"><a href="signup.html">Registrarse</a></div>
+        </div>
+
+        <div id="verificationSection" style="display: none;">
+            <div class="section">
+                <div class="title">Código de verificación</div>
+                <div class="field"><input type="text" id="verificationCode" maxlength="6"></div>
+                <div class="button"><button type="button" id="verifyButton">Verificar</button></div>
+            </div>
+        </div>
+
+        <div id="errorMessage" style="color: red; display: none;"></div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessageDiv = document.getElementById('errorMessage');
+            const verificationSection = document.getElementById('verificationSection');
+            const verifyButton = document.getElementById('verifyButton');
+            let currentUsername = '';
+    
+            // Manejo de envío de formulario de login
+            loginForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+    
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+    
+                try {
+                    const response = await fetch('/authenticate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }),
+                    });
+    
+                    const data = await response.json();
+    
+                    if (response.ok) {
+                        if (data.requireVerification) {
+                            // Mostrar sección de verificación
+                            currentUsername = username;
+                            verificationSection.style.display = 'block';
+                            errorMessageDiv.textContent = data.message;
+                            errorMessageDiv.style.display = 'block';
+                        } else if (data.success) {
+                            window.location.href = '/inicio.html';
+                        }
+                    } else {
+                        // Mostrar error en caso de credenciales incorrectas
+                        errorMessageDiv.textContent = data.error;
+                        errorMessageDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    errorMessageDiv.textContent = 'Error al conectarse al servidor.';
+                    errorMessageDiv.style.display = 'block';
+                }
+            });
+    
+            verifyButton.addEventListener('click', async () => {
+                const code = document.getElementById('verificationCode').value;
+
+                try {
+                    const response = await fetch('/verify-2fa', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: currentUsername,
+                            code: code
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        if (data.success) {
+                            localStorage.setItem('token', data.token);
+                            window.location.href = data.redirect;
+                        } else {
+                            errorMessageDiv.textContent = data.error || 'Error desconocido';
+                            errorMessageDiv.style.display = 'block';
+                        }
+                    } else {
+                        throw new Error(data.error || 'Error en el servidor');
+                    }
+                } catch (error) {
+                    console.error('Error completo:', error);
+                    errorMessageDiv.textContent = 'Error: ' + error.message;
+                    errorMessageDiv.style.display = 'block';
+                }
+            });
+        });
+        
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const response = await fetch('/api/verify-session', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+        
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.role === 'ADMIN') {
+                            window.location.href = '/admin.html';
+                        } else if (data.role === 'USER') {
+                            window.location.href = '/user.html';
+                        }
+                    } else {
+                        // Si la sesión no es válida, eliminar el token
+                        localStorage.removeItem('token');
+                    }
+                } catch (error) {
+                    console.error('Error al verificar la sesión:', error);
+                    localStorage.removeItem('token');
+                }
+            }
+        });
+        
+        // Prevenir cambios manuales de URL
+        window.addEventListener('popstate', function (event) {
+            history.pushState(null, document.title, location.href);
+        });
+        </script>
+</body>
+</html>

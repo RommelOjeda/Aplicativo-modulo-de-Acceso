@@ -1,0 +1,99 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f4f4f4; /* Fondo opcional para más contraste */
+}
+
+form {
+    width: 400px;
+    margin: 0 auto;
+    border: solid 1px #ccc;
+    border-radius: 5px; /* Un poco más de suavidad en los bordes */
+    padding: 20px;
+    background-color: #ffffff; /* Fondo blanco para resaltar */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil para más estilo */
+}
+
+input[type=text], input[type=password], input[type=email] {
+    border: solid 1px #ccc;
+    border-radius: 3px;
+    font-size: 18px;
+    outline: none;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 15px; /* Espacio entre los campos */
+}
+
+input[type=submit], input[type=verifyButton] {
+    border: 0;
+    outline: 0;
+    background-color: #003366;
+    font-size: 18px;
+    color: white;
+    padding: 10px 30px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type=submit]:hover {
+    background-color: #0055a5; /* Un azul más claro al pasar el mouse */
+}
+
+.section {
+    padding: 15px 0;
+}
+
+.section .title {
+    padding: 10px 0;
+    font-size: 20px;
+    text-align: center; /* Centrando los títulos */
+}
+
+.button {
+    padding: 10px 0;
+    text-align: center;
+}
+
+.button a {
+    color: #1a72cb;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.button a:hover {
+    text-decoration: underline;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 9999;
+    animation: fadeOut 3s forwards;
+  }
+  
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      display: none;
+    }
+  }
